@@ -27,7 +27,6 @@ func (g *Generation) CreateTable() _interface.TableGenerationInterface {
 
 func (g *Generation) AddHeadingText(text string) {
 	para := g.doc.AddParagraph()
-	para.Properties().SetHeadingLevel(1)
 	para.AddRun().AddText(text)
 }
 

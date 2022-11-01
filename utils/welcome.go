@@ -33,7 +33,8 @@ func Welcome() {
 		"             |:#:###\\########|#\\\n" +
 		"             /:#:|:::\\|::::::|:(\n" +
 		"             ):#:|::::\\::::::|:/\n" +
-		"            /:#;/:::::<::::::|(\n"
+		"            /:#;/:::::<::::::|(\n" +
+		"by StounhandJ | repo https://github.com/StounhandJ/CodeReport"
 
 	fmt.Println(art)
 }
