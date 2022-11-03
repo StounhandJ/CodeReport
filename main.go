@@ -5,6 +5,7 @@ import (
 	_interface "codeReport/interface"
 	"codeReport/models"
 	"codeReport/utils"
+	"context"
 	"fmt"
 	"math"
 	"os"
@@ -13,23 +14,19 @@ import (
 )
 
 func main() {
-
+	//welcome
 	utils.Welcome()
+	time.Sleep(1 * time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
+	go utils.Animation(ctx)
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	fmt.Println("Current directory: ", pwd)
-
-	files := utils.ReadDir("", pwd)
-
+	//work
+	pwd, files := utils.SearchingFiles()
 	generation(docx.NewSimpleDocxGeneration(pwd), files)
 
-	fmt.Println("-----------------")
-	fmt.Println("Everything is done!!!!!!!")
-	fmt.Println("bye <3")
+	//bye
+	time.Sleep(3 * time.Second)
+	cancel()
 	time.Sleep(2 * time.Second)
 }
 
