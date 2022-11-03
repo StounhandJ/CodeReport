@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	utils.Welcome()
+	utils.Animation()
 
 	pwd, err := os.Getwd()
 	if err != nil {
