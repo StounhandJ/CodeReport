@@ -82,6 +82,7 @@ func Animation(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			tm.MoveTopLeft()
 			fmt.Println("-----------------")
 			fmt.Println("Everything is done!!!!!!!")
 			fmt.Println("bye <3")
