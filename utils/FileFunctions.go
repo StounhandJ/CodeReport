@@ -30,11 +30,14 @@ func readDir(pwd, curDir string) []models.FileInfo {
 
 	for _, f := range curFiles {
 		if !f.IsDir() {
-			if InArray(GetFileMime(f.Name()), []string{"docx", "doc", "xlsx", "pptx", "pdf", "png", "jpeg", "gif", "mp4", "zip", "exe", "mp3"}) != -1 {
+			if InArray(GetFileMime(f.Name()), []string{"docx", "doc", "xlsx", "pptx", "pdf", "png", "jpeg", "gif", "mp4", "zip", "exe", "mp3", "svg", "webp", "ttf", "woff", "woff2", "eot", "mp4", "webm", "git", "env", "otf"}) != -1 {
 				continue
 			}
 			files = append(files, *models.NewFileInfo(pwd, curDir, f))
 		} else {
+			if InArray(f.Name(), []string{".idea", ".git", ".vscode"}) != -1 {
+				continue
+			}
 			files = append(files, readDir(filepath.Join(pwd, f.Name()), filepath.Join(curDir, f.Name()))...)
 		}
 	}
