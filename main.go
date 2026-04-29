@@ -8,45 +8,61 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"os"
 	"strconv"
 	"time"
 )
 
 func main() {
+	defer utils.WaitForExit()
+	if err := run(); err != nil {
+		fmt.Println()
+		fmt.Println("Error:", err)
+	}
+}
+
+func run() error {
 	//welcome
 	utils.Welcome()
 	time.Sleep(1 * time.Second)
 	ctx, cancel := context.WithCancel(context.Background())
-	go utils.Animation(ctx)
+	animationDone := make(chan struct{})
+	go func() {
+		defer close(animationDone)
+		utils.Animation(ctx)
+	}()
 
 	//work
-	pwd, files := utils.SearchingFiles()
-	generation(docx.NewSimpleDocxGeneration(pwd), files)
+	pwd, files, err := utils.SearchingFiles()
+	if err != nil {
+		cancel()
+		<-animationDone
+		return err
+	}
+	err = generation(docx.NewSimpleDocxGeneration(pwd), files)
 
 	//bye
 	time.Sleep(3 * time.Second)
 	cancel()
-	time.Sleep(2 * time.Second)
+	<-animationDone
+
+	return err
 }
 
-func generation(g _interface.GenerationInterface, files []models.FileInfo) {
+func generation(g _interface.GenerationInterface, files []models.FileInfo) error {
 	table := g.CreateTable()
-	table.AddRow([]string{"Модули", "Описание", "Количество строк кода", "Размер (в Кбайтах)"})
-	table.AddRow([]string{"1", "2", "3", "4"})
+	table.AddRow([]string{"Номер", "Файл", "Описание", "Количество строк", "Размер (Кбайт)"})
+	table.AddRow([]string{"1", "2", "3", "4", "5"})
 
 	for n, f := range files {
-		content, err := os.ReadFile(f.FullPath)
-		if err != nil {
+		fileNumber := strconv.Itoa(n + 1)
+		table.AddRow([]string{fileNumber, f.Path, "", strconv.Itoa(f.Rows), fmt.Sprint(math.Ceil(float64(f.Size) / 1000))})
+
+		g.AddHeadingText(fmt.Sprintf("%s. %s", fileNumber, f.Path))
+
+		if err := g.AddFileText(f.FullPath); err != nil {
 			continue
 		}
-
-		table.AddRow([]string{f.Path, "", strconv.Itoa(f.Rows), fmt.Sprint(math.Ceil(float64(f.Size) / 1000))})
-
-		g.AddHeadingText(fmt.Sprintf("%d. %s", n+1, f.Path))
-
-		g.AddText(string(content))
 	}
 
-	g.Close()
+	return g.Close()
 }

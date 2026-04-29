@@ -1,23 +1,30 @@
 package docx
 
 import (
+	"bufio"
 	_interface "codeReport/interface"
 	"fmt"
 	"github.com/Preciselyco/unioffice/document"
+	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type Generation struct {
-	doc *document.Document
-	pwd string
+	doc        *document.Document
+	pwd        string
+	outputPath string
 }
 
 func NewSimpleDocxGeneration(pwd string) *Generation {
+	return NewDocxGeneration(pwd, fmt.Sprintf("%s.docx", filepath.Base(pwd)))
+}
+
+func NewDocxGeneration(pwd, outputPath string) *Generation {
 	return &Generation{
-		doc: document.New(),
-		pwd: pwd,
+		doc:        document.New(),
+		pwd:        pwd,
+		outputPath: outputPath,
 	}
 }
 
@@ -27,22 +34,45 @@ func (g *Generation) CreateTable() _interface.TableGenerationInterface {
 
 func (g *Generation) AddHeadingText(text string) {
 	para := g.doc.AddParagraph()
-	para.AddRun().AddText(text)
+	run := para.AddRun()
+	run.Properties().SetFontFamily(documentFontFamily)
+	run.AddText(text)
 }
 
 func (g *Generation) AddText(text string) {
-	for _, t := range strings.Split(text, "\n") {
-		para := g.doc.AddParagraph()
-		run := para.AddRun()
-		run.Properties().SetSize(8)
-		run.AddText(t)
-	}
+	para := g.doc.AddParagraph()
+	run := para.AddRun()
+	run.Properties().SetFontFamily(documentFontFamily)
+	run.Properties().SetSize(8)
+	run.AddText(text)
 }
 
-func (g *Generation) Close() {
-	err := g.doc.SaveToFile(fmt.Sprintf("%s.docx", filepath.Base(g.pwd)))
+func (g *Generation) AddFileText(path string) error {
+	file, err := os.Open(path)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+	for {
+		line, err := reader.ReadString('\n')
+		if line != "" {
+			g.AddText(line)
+		}
+
+		if err == nil {
+			continue
+		}
+		if err == io.EOF {
+			break
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (g *Generation) Close() error {
+	return g.doc.SaveToFile(g.outputPath)
 }

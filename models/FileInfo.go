@@ -1,12 +1,5 @@
 package models
 
-import (
-	"bytes"
-	"io/fs"
-	"os"
-	"path/filepath"
-)
-
 type FileInfo struct {
 	FullPath string
 
@@ -17,16 +10,11 @@ type FileInfo struct {
 	Rows int
 }
 
-func NewFileInfo(pwd, fullPath string, file fs.DirEntry) *FileInfo {
-	fileInfo, _ := file.Info()
-	path := filepath.Join(pwd, file.Name())
-
-	content, _ := os.ReadFile(path)
-
+func NewFileInfo(path, fullPath string, size int64, rows int) *FileInfo {
 	return &FileInfo{
-		FullPath: filepath.Join(fullPath, file.Name()),
+		FullPath: fullPath,
 		Path:     path,
-		Size:     fileInfo.Size(),
-		Rows:     bytes.Count(content, []byte{'\n'}),
+		Size:     size,
+		Rows:     rows,
 	}
 }

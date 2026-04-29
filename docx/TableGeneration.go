@@ -7,6 +7,8 @@ import (
 	"github.com/Preciselyco/unioffice/schema/soo/wml"
 )
 
+const documentFontFamily = "Times New Roman"
+
 type TableGeneration struct {
 	table document.Table
 }
@@ -21,6 +23,10 @@ func NewTableGeneration(table document.Table) *TableGeneration {
 func (s *TableGeneration) AddRow(cells []string) {
 	row := s.table.AddRow()
 	for _, cell := range cells {
-		row.AddCell().AddParagraph().AddRun().AddText(cell)
+		paragraph := row.AddCell().AddParagraph()
+		paragraph.Properties().SetAlignment(wml.ST_JcCenter)
+		run := paragraph.AddRun()
+		run.Properties().SetFontFamily(documentFontFamily)
+		run.AddText(cell)
 	}
 }

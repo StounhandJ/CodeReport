@@ -1,0 +1,6 @@
+# Add project-specific exclusions here.
+# Syntax is close to .gitignore/.dockerignore:
+#   cache/       ignores a folder anywhere in the project
+#   *.log        ignores matching files anywhere in the project
+#   /tmp         ignores tmp only at the project root
+#   !keep.log    allows a previously ignored file again
