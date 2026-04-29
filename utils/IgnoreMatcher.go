@@ -7,6 +7,7 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,6 +31,7 @@ func NewIgnoreMatcher(root string) *IgnoreMatcher {
 	matcher := &IgnoreMatcher{}
 	matcher.addDefaults()
 	matcher.loadFile(filepath.Join(root, ".codereportignore"))
+
 	return matcher
 }
 
@@ -47,6 +49,7 @@ func (m *IgnoreMatcher) ShouldIgnore(relPath string, isDir bool) bool {
 			ignored = !rule.negate
 		}
 	}
+
 	return ignored
 }
 
@@ -140,10 +143,15 @@ func (m *IgnoreMatcher) addDefaults() {
 // Если файл не существует, ошибка молча игнорируется.
 func (m *IgnoreMatcher) loadFile(path string) {
 	file, err := os.Open(path)
+
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Error: %s\n", err)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -164,6 +172,7 @@ func (m *IgnoreMatcher) addRule(line string) {
 		rule.negate = true
 		line = strings.TrimSpace(strings.TrimPrefix(line, "!"))
 	}
+
 	if line == "" {
 		return
 	}
@@ -173,12 +182,14 @@ func (m *IgnoreMatcher) addRule(line string) {
 		rule.anchored = true
 		line = strings.TrimPrefix(line, "/")
 	}
+
 	if strings.HasSuffix(line, "/") {
 		rule.dirOnly = true
 		line = strings.TrimSuffix(line, "/")
 	}
 
 	rule.pattern = strings.Trim(line, "/")
+
 	rule.hasSlash = strings.Contains(rule.pattern, "/")
 	if rule.pattern != "" {
 		m.rules = append(m.rules, rule)
@@ -202,6 +213,7 @@ func (r ignoreRule) matches(relPath string, isDir bool) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -211,5 +223,6 @@ func matchPattern(pattern, name string) bool {
 	if err == nil && matched {
 		return true
 	}
+
 	return pattern == name || strings.HasPrefix(name, pattern+"/")
 }

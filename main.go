@@ -1,19 +1,21 @@
 package main
 
 import (
-	"codeReport/docx"
-	_interface "codeReport/interface"
-	"codeReport/models"
-	"codeReport/utils"
 	"context"
 	"fmt"
 	"math"
 	"strconv"
 	"time"
+
+	"codeReport/docx"
+	_interface "codeReport/interface"
+	"codeReport/models"
+	"codeReport/utils"
 )
 
 func main() {
 	defer utils.WaitForExit()
+
 	if err := run(); err != nil {
 		fmt.Println()
 		fmt.Println("Error:", err)
@@ -21,26 +23,31 @@ func main() {
 }
 
 func run() error {
-	//welcome
+	// welcome
 	utils.Welcome()
 	time.Sleep(1 * time.Second)
+
 	ctx, cancel := context.WithCancel(context.Background())
+
 	animationDone := make(chan struct{})
 	go func() {
 		defer close(animationDone)
+
 		utils.Animation(ctx)
 	}()
 
-	//work
+	// work
 	pwd, files, err := utils.SearchingFiles()
 	if err != nil {
 		cancel()
 		<-animationDone
+
 		return err
 	}
+
 	err = generation(docx.NewSimpleDocxGeneration(pwd), files)
 
-	//bye
+	// bye
 	time.Sleep(3 * time.Second)
 	cancel()
 	<-animationDone

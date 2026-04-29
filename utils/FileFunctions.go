@@ -2,10 +2,13 @@ package utils
 
 import (
 	"bufio"
-	"codeReport/models"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"codeReport/models"
 )
 
 const MaxScannedFileSize int64 = 20 * 1024 * 1024
@@ -27,6 +30,7 @@ func SearchingFiles() (string, []models.FileInfo, error) {
 func readDir(pwd, curDir string, ignore *IgnoreMatcher) ([]models.FileInfo, error) {
 	curFiles, err := os.ReadDir(curDir)
 	files := make([]models.FileInfo, 0)
+
 	if err != nil {
 		return nil, err
 	}
@@ -59,22 +63,30 @@ func readDir(pwd, curDir string, ignore *IgnoreMatcher) ([]models.FileInfo, erro
 			if err != nil {
 				return nil, err
 			}
+
 			files = append(files, nestedFiles...)
 		}
 	}
+
 	return files, nil
 }
 
 func IsTextFile(path string) (bool, error) {
 	file, err := os.Open(path)
+
 	if err != nil {
 		return false, err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Error: %s\n", err)
+		}
+	}()
 
 	buffer := make([]byte, 8192)
+
 	n, err := file.Read(buffer)
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return false, err
 	}
 
@@ -83,29 +95,39 @@ func IsTextFile(path string) (bool, error) {
 			return false, nil
 		}
 	}
+
 	return true, nil
 }
 
 func CountRows(path string) (int, error) {
 	file, err := os.Open(path)
+
 	if err != nil {
 		return 0, err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Error: %s\n", err)
+		}
+	}()
 
 	reader := bufio.NewReader(file)
+
 	rows := 0
 	for {
 		line, err := reader.ReadString('\n')
 		if line != "" {
 			rows++
 		}
+
 		if err == nil {
 			continue
 		}
+
 		if err == io.EOF {
 			break
 		}
+
 		return 0, err
 	}
 

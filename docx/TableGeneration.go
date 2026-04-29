@@ -15,6 +15,7 @@ type TableGeneration struct {
 
 func NewTableGeneration(table document.Table) *TableGeneration {
 	table.Properties().Borders().SetAll(wml.ST_BorderSingle, color.Auto, measurement.Point)
+
 	return &TableGeneration{
 		table: table,
 	}

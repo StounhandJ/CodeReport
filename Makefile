@@ -20,3 +20,13 @@ build-win-arm:
 
 build-linux-arm:
 	GOOS=linux GOARCH=arm go build -ldflags "-s -w" -o $(output)/$(projectName)-linux-arm
+
+fmt: install-modules
+	gofumpt -w .
+	golangci-lint config verify
+	golangci-lint run --fix
+
+
+install-modules:
+	go install mvdan.cc/gofumpt@v0.9.2
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4

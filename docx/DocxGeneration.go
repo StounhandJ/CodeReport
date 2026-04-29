@@ -2,28 +2,28 @@ package docx
 
 import (
 	"bufio"
-	_interface "codeReport/interface"
 	"fmt"
-	"github.com/Preciselyco/unioffice/document"
 	"io"
 	"os"
 	"path/filepath"
+
+	_interface "codeReport/interface"
+
+	"github.com/Preciselyco/unioffice/document"
 )
 
 type Generation struct {
 	doc        *document.Document
-	pwd        string
 	outputPath string
 }
 
 func NewSimpleDocxGeneration(pwd string) *Generation {
-	return NewDocxGeneration(pwd, fmt.Sprintf("%s.docx", filepath.Base(pwd)))
+	return NewDocxGeneration(fmt.Sprintf("%s.docx", filepath.Base(pwd)))
 }
 
-func NewDocxGeneration(pwd, outputPath string) *Generation {
+func NewDocxGeneration(outputPath string) *Generation {
 	return &Generation{
 		doc:        document.New(),
-		pwd:        pwd,
 		outputPath: outputPath,
 	}
 }
@@ -49,10 +49,15 @@ func (g *Generation) AddText(text string) {
 
 func (g *Generation) AddFileText(path string) error {
 	file, err := os.Open(path)
+
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Error: %s\n", err)
+		}
+	}()
 
 	reader := bufio.NewReader(file)
 	for {
@@ -64,9 +69,11 @@ func (g *Generation) AddFileText(path string) error {
 		if err == nil {
 			continue
 		}
+
 		if err == io.EOF {
 			break
 		}
+
 		return err
 	}
 
