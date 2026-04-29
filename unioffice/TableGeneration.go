@@ -1,4 +1,4 @@
-package docx
+package unioffice
 
 import (
 	"github.com/Preciselyco/unioffice/color"

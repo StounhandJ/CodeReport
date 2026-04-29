@@ -1,13 +1,13 @@
 package main
 
 import (
+	"codeReport/unioffice"
 	"context"
 	"fmt"
 	"math"
 	"strconv"
 	"time"
 
-	"codeReport/docx"
 	_interface "codeReport/interface"
 	"codeReport/models"
 	"codeReport/utils"
@@ -45,7 +45,7 @@ func run() error {
 		return err
 	}
 
-	err = generation(docx.NewSimpleDocxGeneration(pwd), files)
+	err = generation(unioffice.NewSimpleDocxGeneration(pwd), files)
 
 	// bye
 	time.Sleep(3 * time.Second)
