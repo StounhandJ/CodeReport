@@ -6,34 +6,9 @@
 
 ![](result.png)
 
-## Структура проекта:
-```text
-│   go.mod
-│   go.sum
-│   main.go
-│   result.png
-|
-├───docx
-│       DocxGeneration.go
-│       TableGeneration.go
-│
-├───interface
-│       GenerationInterface.go
-│       TableGenerationInterface.go
-│
-├───models
-│       FileInfo.go
-│
-└───utils
-        FileFunctions.go
-        SupportFunctions.go
-        welcome.go
-        IgnoreMatcher.go
-```
-
 ## Работа с файлом .codereportignore
 
-Создайте файл `.codereportignore` в корне анализируемого проекта для исключения ненужных файлов и папок из отчёта. Синтаксис аналогичен `.gitignore`.
+Создайте файл `.codereportignore` в корне анализируемого проекта для исключения ненужных файлов и папок из отчёта. Синтаксис аналогичен `.gitignore`
 
 ### Примеры использования:
 
@@ -49,8 +24,8 @@ temp/
 # Исключить файл только в корне проекта
 /secret.key
 
-# Исключить все файлы .tmp только в папках
-*.tmp
+# Исключить все файлы .tmp только в папке data
+/data/*.tmp
 
 # Вернуть в анализ файл, даже если он исключен правилом выше
 !important.log
